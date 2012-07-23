@@ -14,7 +14,8 @@ require(['jquery', 'underscore', 'deathangel', 'simulator'],
         
         function simulate() {
             var results = $('#results');
-            
+            results.children().remove();
+
             function digest(state) {
                 var p = 1.0;
                 var choices = [];
