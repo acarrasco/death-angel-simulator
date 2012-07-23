@@ -22,7 +22,7 @@ define('deathangel',
                     });
                     states.push(s);
                     if (state.support > 0) {
-                        states.push(s.next(Choice('use_support_attack'), 
+                        states.push(s.next(Choice('reroll_attack'), 
                         {
                             remaining_shots : state.remaining_shots,
                             support : state.support - 1
@@ -65,7 +65,7 @@ define('deathangel',
                     
                     states.push(s);
                     if (state.support > 0) {
-                        states.push(s.next(Choice('use_support_defense'),
+                        states.push(s.next(Choice('reroll_defense'),
                         {
                             marine_dead : false,
                             attacked_front : false,
@@ -116,6 +116,81 @@ define('deathangel',
         
         var Leon = _.extend({}, VanillaMarine, {
             shots : 3
+        });
+        
+        var Callistarius = _.extend({}, VanillaMarine, {
+            get_states_attack : function(state) {
+                var states = [];
+                var s;
+                if (state.front > 0) {
+                    s =  state.next(Chance('shot_hit', 0.5),
+                    {
+                        front : state.front - 1
+                    });
+                    states.push(s);
+                    
+                    s = state.next(Chance('shot_miss', 0.5), 
+                    {
+                        remaining_shots : state.remaining_shots - 1
+                    });
+                    states.push(s);
+                    if (state.support > 0) {
+                        states.push(s.next(Choice('reroll_attack'), 
+                        {
+                            remaining_shots : state.remaining_shots,
+                            support : state.support - 1
+                        }));
+                    }
+                }
+                
+                return states;
+            }
+        });
+        
+        var Noctis = _.extend({}, VanillaMarine, {
+            get_states_attack : function(state) {
+                var states = [];
+                var s;
+                if (state.front > 0) {
+                    s =  state.next(Chance('shot_hit', 0.5),
+                    {
+                        front : state.front - 1,
+                        remaining_shots : state.remaining_shots -1
+                    });
+                    states.push(s);
+                    
+                    if (state.support > 0) {
+                        states.push(s.next(Choice('reroll_attack'), 
+                        {
+                            front : state.front,
+                            remaining_shots : state.remaining_shots,
+                            support : state.support - 1
+                        }));
+                    }
+                    
+                    s =  state.next(Chance('deadly_aim', 1.0/6.0),
+                    {
+                        front : Math.max(0, state.front - 3),
+                        remaining_shots : state.remaining_shots -1
+                    });
+                    states.push(s)
+                    
+                    s = state.next(Chance('shot_miss', 2.0/6.0), 
+                    {
+                        remaining_shots : state.remaining_shots - 1
+                    });
+                    states.push(s);
+                    if (state.support > 0) {
+                        states.push(s.next(Choice('reroll_attack'), 
+                        {
+                            remaining_shots : state.remaining_shots,
+                            support : state.support - 1
+                        }));
+                    }
+                }
+                
+                return states;
+            }
         });
         
         function Chance(description, probability) {
@@ -206,17 +281,19 @@ define('deathangel',
                         choices.push(x.description);
                     }
                 });
+            }
+            return this;
         }
-        return this;
-    }
         
-    return {
-        next_states_for_turn : next_states_for_turn,
-        Digester : Digester,
-        marines : {
-            Valencio : VanillaMarine,
-            Leon : Leon
-        },
-        State : State
-    };
-})
+        return {
+            next_states_for_turn : next_states_for_turn,
+            Digester : Digester,
+            marines : {
+                Valencio : VanillaMarine,
+                Leon : Leon,
+                Callistarius : Callistarius,
+                Noctis : Noctis
+            },
+            State : State
+        };
+    })
