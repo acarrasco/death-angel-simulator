@@ -1,0 +1,50 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <script data-main="scripts/main" 
+                src="scripts/require.js"
+                type="application/javascript">
+        </script>
+        <style type="text/css">
+            th {border-bottom : 2px solid black}
+            td {border-collapse: true;
+                padding: 0px;
+                border: 1px solid black;}
+        </style>
+    </head>
+    <body>
+        <div>
+            Genestealers behind
+            <select id="genestealers_behind"></select>
+        </div>
+        <div>
+            Marine
+            <select id="marine"></select>
+        </div>
+        <div>Support tokens
+            <select id="support_tokens"></select>
+        </div>
+        <div>
+            Genestealers in front
+            <select id="genestealers_front"></select>
+        </div>
+        <button id="simulate_btn" value="simulate">simulate</button>
+        <table id="results">
+            <tr>
+                <th>Probability</th>
+                <th>Marine dead?</th>
+                <th>Geneastealers in front</th>
+                <th>Geneastealers behind</th>
+                <th>Support tokens</th>
+                <th>Choices</th>
+            </tr>
+        </table>
+    </body>
+</html>
