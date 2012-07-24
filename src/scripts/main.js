@@ -31,7 +31,7 @@ require(['jquery', 'underscore', 'deathangel', 'simulator'],
                 tr.append($('<td/>').text(state.front));
                 tr.append($('<td/>').text(state.behind));
                 tr.append($('<td/>').text(state.support));
-                tr.append($('<td/>').text(_.pluck(state.path, 'description')));
+                _.forEach(state.path, function(x) {tr.append($('<td/>').text(x.description))});
                 results.append(tr);
             }
             
