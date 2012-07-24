@@ -20,9 +20,11 @@ define('deathangel',
                 {
                     remaining_shots : state.remaining_shots - 1
                 });
-                states.push(s);
                 if (state.support > 0) {
-                    states.push(s.reroll('attack'));
+                    states.push(s.reroll('miss'));
+                    states.push(s.next(Choice('save_reroll')));
+                } else {
+                    states.push(s);
                 }
 
                 return states;
@@ -112,9 +114,11 @@ define('deathangel',
                 {
                     remaining_shots : state.remaining_shots - 1
                 });
-                states.push(s);
                 if (state.support > 0) {
-                    states.push(s.reroll('attack'));
+                    states.push(s.reroll('miss'));
+                    states.push(s.next(Choice('save_reroll')));
+                } else {
+                    states.push(s);
                 }
                 
                 return states;
@@ -131,10 +135,11 @@ define('deathangel',
                     front : state.front - 1,
                     remaining_shots : state.remaining_shots -1
                 });
-                states.push(s);
-
                 if (s.front > 0 && s.support > 0) {
-                    states.push(s.reroll('attack'));
+                    states.push(s.reroll('hit'));
+                    states.push(s.next(Choice('save_reroll')));
+                } else {
+                    states.push(s);
                 }
 
                 s =  state.next(Chance('deadly_aim', 1.0/6.0),
@@ -142,15 +147,17 @@ define('deathangel',
                     front : Math.max(0, state.front - 3),
                     remaining_shots : state.remaining_shots -1
                 });
-                states.push(s)
+                states.push(s);
 
                 s = state.next(Chance('shot_miss', 2.0/6.0), 
                 {
                     remaining_shots : state.remaining_shots - 1
                 });
-                states.push(s);
                 if (state.support > 0) {
-                    states.push(s.reroll('attack'));
+                    states.push(s.reroll('miss'));
+                    states.push(s.next(Choice('save_reroll')));
+                } else {
+                    states.push(s);
                 }
                 
                 return states;
@@ -167,9 +174,11 @@ define('deathangel',
                         front : Math.max(0, state.front - i),
                         remaining_shots : state.remaining_shots - 1
                     });
-                    states.push(s);
                     if (i < 5 && s.front > 0 && s.support > 0) {
                         states.push(s.reroll('cleansing_flames_x' + i));
+                        states.push(s.next(Choice('save_reroll')));
+                    } else {
+                        states.push(s);
                     }
                 }
                 return states;
@@ -251,28 +260,6 @@ define('deathangel',
             } else {
                 return [];
             }
-        }
-        
-        /**
-         * This collects the states to make a report.
-         */
-        function Digester() {
-            if (!(this instanceof Digester)) {
-                return new Digester();
-            }
-            this.data = {};
-            
-            this.digest = function(state) {
-                var p = 1.0;
-                var choices = [];
-                _.each(state.path, function(x) {
-                    p *= x.probability;
-                    if (x.type == 'choice') {
-                        choices.push(x.description);
-                    }
-                });
-            }
-            return this;
         }
         
         return {
