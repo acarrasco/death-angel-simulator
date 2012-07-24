@@ -13,19 +13,19 @@ and open the template in the editor.
                 type="application/javascript">
         </script>
         <style type="text/css">
-            table 
+            .results
             {
                 font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
                 width:100%;
                 border-collapse:collapse;
             }
-            td, th 
+            .results td, .results th
             {
                 font-size:1em;
                 border:1px solid black;
                 padding:3px 7px 2px 7px;
             }
-            th 
+            .results th
             {
                 font-size:1.1em;
                 text-align:left;
@@ -34,26 +34,33 @@ and open the template in the editor.
                 background-color:navy;
                 color:white;
             }
-            </style>
-        </head>
-        <body>
-            <div>
-                Genestealers behind
-                <select id="genestealers_behind"></select>
-        </div>
-        <div>
-            Marine
-            <select id="marine"></select>
-        </div>
-        <div>Support tokens
-            <select id="support_tokens"></select>
-        </div>
-        <div>
-            Genestealers in front
-            <select id="genestealers_front"></select>
-        </div>
-        <button id="simulate_btn" value="simulate">simulate</button>
+            
+            .tlabel {
+                text-align: right
+            }
+        </style>
+    </head>
+    <body>
         <table>
+            <tr>
+                <td class="tlabel">Marine</td>
+                <td class="tselect"><select id="marine"></select></td>
+            </tr>
+            <tr>
+                <td class="tlabel">Support tokens</td>
+                <td class="tselect"><select id="support_tokens"></select></td>
+            </tr>
+            <tr>
+                <td class="tlabel">Genestealers behind</td>
+                <td class="tselect"><select id="genestealers_behind"></select></td>
+            </tr>
+            <tr>
+                <td class="tlabel">Genestealers in front</td>
+                <td class="tselect"><select id="genestealers_front"></select></td>
+            </tr>
+        </table>
+        <button id="simulate_btn" value="simulate">simulate</button>
+        <table class="results">
             <thead>
                 <tr>
                     <th>Probability</th>
