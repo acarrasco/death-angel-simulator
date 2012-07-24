@@ -264,7 +264,6 @@ define('deathangel',
         
         return {
             next_states_for_turn : next_states_for_turn,
-            Digester : Digester,
             marines : {
                 Valencio : VanillaMarine,
                 Leon : Leon,
