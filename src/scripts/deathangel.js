@@ -63,7 +63,6 @@ define('deathangel',
                         attacked_front : true
                     });
                     
-                    states.push(s);
                     if (state.support > 0) {
                         states.push(s.next(Choice('reroll_defense'),
                         {
@@ -71,6 +70,8 @@ define('deathangel',
                             attacked_front : false,
                             support : state.support - 1
                         }));
+                    } else {
+                        states.push(s);
                     }
                 }
                 
