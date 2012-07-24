@@ -38,13 +38,7 @@ define('deathangel',
                 var s;
                 var fail_p = Math.min(1.0, (state.front+1) / 6.0);
                 
-                if (state.front == 0) {
-                    s = state.next(Chance('front_defense_success', 1.0),
-                    {
-                        attacked_front : true
-                    });
-                    states.push(s);
-                } else if (state.front >= 5) {
+                if (state.front >= 5) {
                     s = state.next(Chance('front_defense_fails', 1.0),
                     {
                         marine_dead : true, 
@@ -83,13 +77,7 @@ define('deathangel',
                 var s;
                 var fail_p = Math.min(1.0, (state.behind+1) / 6.0);
                 
-                if (state.behind == 0) {
-                    s = state.next(Chance('behind_defense_success', 1.0),
-                    {
-                        attacked_behind : true
-                    });
-                    states.push(s);
-                } else if (state.behind >= 5) {
+                if (state.behind >= 5) {
                     s = state.next(Chance('behind_defense_fails', 1.0),
                     {
                         marine_dead : true, 
@@ -255,9 +243,9 @@ define('deathangel',
                 return [];
             } else if (state.remaining_shots > 0) {
                 return state.marine.get_states_attack(state);
-            } else if (!state.attacked_front) {
+            } else if (state.front > 0 && !state.attacked_front) {
                 return state.marine.get_states_defend_front(state);
-            } else if (!state.attacked_behind) {
+            } else if (state.behind > 0 && !state.attacked_behind) {
                 return state.marine.get_states_defend_behind(state);
             } else {
                 return [];
