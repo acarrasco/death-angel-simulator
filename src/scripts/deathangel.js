@@ -157,6 +157,25 @@ define('deathangel',
             }
         });
         
+        var Zael = _.extend({}, VanillaMarine, {
+            get_states_attack : function(state) {
+                var states = [];
+                var s;
+
+                for (var i = 0; i < 6; i++) {
+                    s = state.next(Chance('cleansing_flames_x' + i, 1.0/6.0), {
+                        front : Math.max(0, state.front - i),
+                        remaining_shots : state.remaining_shots - 1
+                    });
+                    states.push(s);
+                    if (i < 5 && s.front > 0 && s.support > 0) {
+                        states.push(s.reroll('cleansing_flames_x' + i));
+                    }
+                }
+                return states;
+            }
+        });
+        
         function Chance(description, probability) {
             if (!(this instanceof Chance)) {
                 return new Chance(description, probability);
@@ -263,7 +282,8 @@ define('deathangel',
                 Valencio : VanillaMarine,
                 Leon : Leon,
                 Callistarius : Callistarius,
-                Noctis : Noctis
+                Noctis : Noctis,
+                Zael : Zael
             },
             State : State
         };
