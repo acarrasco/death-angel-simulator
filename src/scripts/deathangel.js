@@ -2,15 +2,16 @@ define('deathangel',
     ['underscore'],
     function(_) {
         
+        var dice_skulls = [false, true, true, true,false, false];
+        
         var attack_reroll_choices = function(state, states_list) {
-            var description = _.last(state.path).description;
             if (state.support == 0 || state.front == 0) {
                 states_list.push(state);
             } else if (state.support > 0 && state.front >= 5) {
-                states_list.push(state.reroll(description));
+                states_list.push(state.reroll());
             } else {
-                states_list.push(state.reroll(description));
-                states_list.push(state.next(Choice('save_reroll_'+description)));
+                states_list.push(state.reroll());
+                states_list.push(state.save_reroll());
             }
         };
         
@@ -62,7 +63,7 @@ define('deathangel',
                     });
                     
                     if (state.support > 0) {
-                        states.push(s.reroll('defense'));
+                        states.push(s.reroll());
                     } else {
                         states.push(s);
                     }
@@ -176,6 +177,110 @@ define('deathangel',
             }
         });
         
+        var Gideon = _.extend({}, VanillaMarine, {
+            shots : 0,
+            _defense_success_p : function(swarm_size) {
+                var saves = 0;
+                for (var i = 0; i < 6; i++) {
+                    if (dice_skulls[i] || i > swarm_size) {
+                        saves += 1;
+                    }
+                }
+                return saves/6.0;
+            },
+            get_states_defend_front : function(state) {
+                var states = [];
+                var success_p = this._defense_success_p(state.front);
+                var s = state.next(Chance('front_defense_success', success_p), 
+                {
+                    attacked_front : true
+                });
+                states.push(s);
+                
+                s = state.next(Chance('front_defense_fails', 1-success_p), {
+                    attacked_front : true,
+                    marine_dead : true
+                });
+                if (state.support > 0) {
+                    states.push(s.reroll());
+                } else {
+                    states.push(s);
+                }
+                
+                return states;
+            },
+            get_states_defend_behind : function(state) {
+                var success_p = this._defense_success_p(state.behind);
+                return [
+                state.next(Chance('behind_defense_success', success_p),
+                {
+                    attacked_behind : true
+                }),
+                state.next(Chance('behind_defense_fails', 1-success_p),
+                {
+                    attacked_behind : true,
+                    marine_dead : true
+                })
+                ];
+            }
+        });
+        
+        var Lorenzo = _.extend({}, VanillaMarine, {
+            shots : 0,
+            _get_states_defense : function(state, side) {
+                var states = [];
+                var counter_attack_p = 0;
+                var defense_fails_p = 0;
+                var defense_success_p = 0;
+                var swarm_size = state[side];
+                var support = side == 'front' ? state.support : 0;
+                
+                for (var i = 0; i < 6; i++) {
+                    if (dice_skulls[i]) {
+                        counter_attack_p += 1.0/6.0;
+                    } else if (i > swarm_size) {
+                        defense_success_p += 1.0/6.0;
+                    } else {
+                        defense_fails_p += 1.0/6.0;
+                    }
+                }
+                
+                var mod = {};
+                mod['attacked_' + side] = true;
+                var s = state.next(Chance(side + '_defense_success', defense_success_p),
+                    mod);
+                if (support > 0) {
+                    states.push(s.reroll());
+                    states.push(s.save_reroll());
+                } else {
+                    states.push(s);
+                }
+                
+                mod = {};
+                mod['attacked_' + side] = true;
+                mod.marine_dead = true;
+                s = state.next(Chance(side + '_defense_fails', defense_fails_p), mod);
+                if (support > 0) {
+                    states.push(s.reroll());
+                } else {
+                    states.push(s);
+                }
+
+                mod = {};
+                mod[side] = swarm_size - 1;
+                s = state.next(Chance(side + '_counter_attack', counter_attack_p), mod);
+                states.push(s);
+                
+                return states;
+            },
+            get_states_defend_front : function(state) {
+                return this._get_states_defense(state, 'front');
+            },
+            get_states_defend_behind : function(state) {
+                return this._get_states_defense(state, 'behind');
+            }
+        });
+        
         function Chance(description, probability) {
             if (!(this instanceof Chance)) {
                 return new Chance(description, probability);
@@ -228,11 +333,15 @@ define('deathangel',
                     }
                     );
             },
-            reroll : function(description) {
-                var ev = Choice('reroll_' + description);
+            reroll : function() {
+                var ev = Choice('reroll_' + _.last(this.path).description);
                 return _.extend(this.next(ev, this.previous), {
                     support : this.support - 1
                 });
+            },
+            save_reroll : function() {
+                var ev = Choice('save_reroll_' + _.last(this.path).description);
+                return this.next(ev, {});
             }
         });
         
@@ -256,11 +365,13 @@ define('deathangel',
         return {
             next_states_for_turn : next_states_for_turn,
             marines : {
-                Valencio : VanillaMarine,
-                Leon : Leon,
-                Callistarius : Callistarius,
-                Noctis : Noctis,
-                Zael : Zael
+                'Valencio' : VanillaMarine,
+                'Leon' : Leon,
+                'Callistarius' : Callistarius,
+                'Noctis' : Noctis,
+                'Zael' : Zael,
+                'Gideon (supporting)' : Gideon,
+                'Lorenzo (supporting)' : Lorenzo
             },
             State : State
         };
