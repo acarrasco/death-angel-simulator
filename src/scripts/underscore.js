@@ -1,3 +1,3 @@
-define('underscore', ['lib/underscore'], function() {
+define('underscore', ['lib/lodash.min'], function() {
     return _;
 })
